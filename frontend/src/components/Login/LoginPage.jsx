@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from '../../images/logo_.png';
@@ -7,23 +7,26 @@ function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate(); 
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setLoading(true);
+    setError('');
+
     try {
-      // Send POST request to the backend for login
       const response = await axios.post('http://localhost:8000/api/v1/users/login', { email, password });
-
-      // Store JWT token in localStorage for session persistence
       localStorage.setItem('jwtToken', response.data.token);
-
-      // Redirect to the homepage or user dashboard after successful login
-      navigate("/home"); // Adjust this based on your app's routes
+      navigate('/')
     } catch (err) {
-      setError('Invalid email or password');
-      console.error(err);
+      if (err.response && err.response.status === 400) {
+        setError('Invalid email or password');
+      } else {
+        setError('Server error, please try again later');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,7 +36,6 @@ function LoginPage() {
         <div className="flex flex-col items-center justify-center w-[50%] p-12">
           <div className="w-full max-w-md">
             <h1 className="text-3xl font-bold mb-8">Sign In</h1>
-
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="email" className="block text-gray-600 my-2 font-semibold">
@@ -46,6 +48,7 @@ function LoginPage() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
 
@@ -60,6 +63,7 @@ function LoginPage() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </div>
 
@@ -68,10 +72,7 @@ function LoginPage() {
                   <input type="checkbox" className="mr-2" />
                   <span>Remember me</span>
                 </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-medium hover:underline"
-                >
+                <Link to="/forgot-password" className="text-medium hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -79,8 +80,9 @@ function LoginPage() {
               <button
                 type="submit"
                 className="w-full px-3 py-2 rounded-3xl text-white bg-medium hover:bg-dark"
+                disabled={loading}
               >
-                Sign in
+                {loading ? "Signing in..." : "Sign in"}
               </button>
             </form>
 

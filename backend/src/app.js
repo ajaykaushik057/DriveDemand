@@ -16,10 +16,14 @@ app.get('/',(req,res)=>{
     res.send('Hello World!');
 })
 
+
+// =============== Routes =============================
 import userRouter from "./routes/user.routes.js"
+import carRouter from './routes/car.routes.js';
 
 
 app.use("/api/v1/users",userRouter)
+app.use("/api/v2/cars",carRouter)
 
 
 export {app}

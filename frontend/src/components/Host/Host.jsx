@@ -7,7 +7,6 @@ const Host = () => {
     brand: '',
     model: '',
     year: '',
-    NoPlate: '',
     available: true,
     pricePerDay: '',
     seats: '',
@@ -15,6 +14,7 @@ const Host = () => {
     transmission: '',
     image: null, // Change from array to single image
     availableDates: { from: '', to: '' },
+    location: '', // New field for location
   });
 
   const handleChange = (e) => {
@@ -36,7 +36,7 @@ const Host = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-12">
+    <div className="min-h-screen flex items-center justify-center bg-dark p-12">
       <div className="bg-white p-8 shadow-md w-full max-w-3xl h-screen lg:h-auto overflow-y-auto lg:overflow-visible">
         <h2 className="text-3xl font-bold mb-8">Car Information</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -113,13 +113,13 @@ const Host = () => {
 
           {/* License Plate */}
           <div>
-            <label className="block text-gray-600 my-2 font-semibold">NUMBER PLATE</label>
+            <label className="block text-gray-600 my-2 font-semibold">LOCATION</label>
             <input
               type="text"
-              name="NoPlate"
-              value={car.NoPlate}
+              name="location"
+              value={car.location}
               onChange={handleChange}
-              placeholder="Enter license plate number"
+              placeholder="Enter car location"
               className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -198,6 +198,7 @@ const Host = () => {
             />
             {car.image && <p className="text-gray-600 mt-2">Image selected: {car.image.name}</p>}
           </div>
+        
 
       
           {/* Submit Button */}

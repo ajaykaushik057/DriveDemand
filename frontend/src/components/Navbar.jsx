@@ -1,12 +1,24 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../images/logo_.png";
+import { useNavigate } from "react-router-dom";
+import { RiLoginBoxFill } from "react-icons/ri";
 
 const Navbar = () => {
   const [dropdown, setDropdown] = useState(false);
 
+  const navigate = useNavigate();
+
   const toggleDropdown = () => {
     setDropdown(!dropdown);
+  };
+
+  const loggedIn = localStorage.getItem('jwtToken')
+
+  const logoutUser = () => {
+    localStorage.clear();
+    navigate("/");
+    alert("Logged out")
   };
 
   return (
@@ -90,12 +102,14 @@ const Navbar = () => {
             </div>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <button
+            {
+              loggedIn?
+              <>
+              <button
               type="button"
               className="relative rounded-full bg-medium p-1 text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
             >
               <span className="absolute -inset-1.5"></span>
-              <span className="sr-only">View notifications</span>
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -111,12 +125,6 @@ const Navbar = () => {
                 />
               </svg>
             </button>
-            <Link
-              to="/login"
-              className="rounded-md px-3 py-2 text-sm font-medium text-medium  focus:bg-gray-700"
-            >
-              Login
-            </Link>
 
             {/* Profile dropdown */}
             <div className="relative ml-3 ">
@@ -163,12 +171,26 @@ const Navbar = () => {
                     to="#"
                     className="block px-4 py-2 text-sm text-gray-700"
                     role="menuitem"
+                    onClick={logoutUser}
                   >
-                    Sign out
+                    Logout
                   </Link>
+
+                  
                 </div>
+                
               )}
             </div>
+              </>:
+              <Link
+              to="/login"
+              className="flex rounded-md px-3 py-2 text-sm font-medium text-medium  focus:bg-gray-700"
+            >
+              Login <RiLoginBoxFill style={{margin:"3px",fontSize:"15px"}} />
+            </Link>
+            }
+            
+            
           </div>
         </div>
       </div>

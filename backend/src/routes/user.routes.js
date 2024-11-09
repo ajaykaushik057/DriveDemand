@@ -3,14 +3,13 @@ import { loginUser, registerUser } from '../controllers/userController.js';
 import { upload } from '../middleware/multer.js';
 
 
-const router = Router();
+const userRouter = Router();
 
-router.route("/register").post(
+userRouter.route("/register").post(
         upload.single('avatar'),
         registerUser
-
 )
 
-router.route("/login").post(loginUser)
+userRouter.route("/login").post(loginUser)
 
-export default router;
+export default userRouter;

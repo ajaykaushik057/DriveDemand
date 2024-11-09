@@ -35,7 +35,7 @@ const Background = () => {
       ))}
 
       {/* Content on top of the slideshow */}
-      <div className="absolute inset-0 flex items-center justify-center z-10">
+      <div className="absolute inset-0 flex items-center justify-center">
         <Header/>
       </div>
     </div>

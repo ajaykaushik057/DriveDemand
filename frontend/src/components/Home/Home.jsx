@@ -7,13 +7,14 @@ import Article from './Article'
 import Guest from './Guest'
 import Background from './Background'
 import Footer from './Footer'
+import AvailableCars from '../AvailableCars/AvailableCars'
 
 const Home = () => {
   return (
     <div>
       <Background />
       <StatisticsSection/>
-      <CarBooking />
+     <AvailableCars/>
       <Article/>
       <Guest/>
       <Footer/>

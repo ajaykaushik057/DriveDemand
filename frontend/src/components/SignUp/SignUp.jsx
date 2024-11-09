@@ -1,250 +1,207 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const Signup = () => {
-
-  const [formData, setFormData] = useState({
-    fullname: "",
-    email: "",
-    gender: "",
-    password: "",
-    confirmPassword: "",
-    licenseNo: "",
-    licenseExpiryDate: "",
-    address: "",
-    city: "",
-    district: "",
-    state: "",
-    pincode: "",
+const Host = () => {
+  const [car, setCar] = useState({
+    name: '',
+    brand: '',
+    model: '',
+    year: '',
+    location: '',
+    pricePerDay: '',
+    seats: '',
+    fuelType: '',
+    transmission: '',
+    image: null,
   });
+
+  const [error, setError] = useState('');
+  const [previewImage, setPreviewImage] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setCar({ ...car, [name]: value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCar({ ...car, image: reader.result.split(',')[1] }); // Extract base64 string
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file); // Read the image as base64
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData)
+    // Form validation
+    if (!car.name || !car.brand || !car.model || !car.year || !car.location || !car.pricePerDay || !car.seats || !car.fuelType || !car.transmission || !car.image) {
+      setError('All fields are required!');
+      return;
+    }
+
+    const carData = {
+      name: car.name,
+      brand: car.brand,
+      model: car.model,
+      year: car.year,
+      location: car.location,
+      pricePerDay: car.pricePerDay,
+      seats: car.seats,
+      fuelType: car.fuelType,
+      transmission: car.transmission,
+      image: car.image,
+    };
 
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/users/register',formData,{
-        headers:{
-          'Content-Type':'application/json'
-        }
-      })
-      if(response.status===201){
-        alert("Registered")
-      }else{
-        alert("Failed to Registered")
-      }
+      await axios.post('/api/cars', carData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
+      // Reset the form and show success message
+      setCar({
+        name: '',
+        brand: '',
+        model: '',
+        year: '',
+        location: '',
+        pricePerDay: '',
+        seats: '',
+        fuelType: '',
+        transmission: '',
+        image: null,
+      });
+      setPreviewImage(null);
+      alert('Car added successfully!');
     } catch (error) {
-      alert(error.message)
+      setError(error.response?.data?.message || 'An error occurred while adding the car.');
     }
-    
   };
 
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark p-12">
-    <div className="bg-white p-8 shadow-md w-full max-w-3xl h-screen lg:h-auto overflow-y-auto lg:overflow-visible">
-      <h2 className="text-3xl font-bold mb-8">Sign Up</h2>
-
-      <form className="grid grid-cols-1 lg:grid-cols-2 gap-4" onSubmit={handleSubmit}>
-        {/* Full Name */}
-        <div>
-          <label className="block text-gray-600 my-2 font-semibold">FULL NAME</label>
+    <div className="container">
+      <h2>Host Your Car</h2>
+      {error && <div className="error">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Car Name</label>
           <input
             type="text"
-            name="fullname"
-            placeholder="Enter your name"
-            className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.fullname}
+            name="name"
+            value={car.name}
             onChange={handleChange}
+            placeholder="Enter car name"
           />
         </div>
 
-        {/* Email Address */}
-        <div>
-          <label className="block text-gray-600 my-2 font-semibold">EMAIL</label>
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
-
-        {/* Gender */}
-        <div className="flex-1">
-          <label className="block text-gray-600 my-2 font-semibold">GENDER</label>
-          <select
-            name="gender"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.gender}
-            onChange={handleChange}
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        {/* Password */}
-        <div>
-          <label className="block text-gray-600 my-2 font-semibold">PASSWORD</label>
-          <input
-            type="password"
-            name="password"
-            placeholder="Create password"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </div>
-
-        {/* Confirm Password */}
-        <div>
-          <label className="block text-gray-600 my-2 font-semibold">CONFIRM PASSWORD</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Re-type Password"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
-        </div>
-
-        {/* License Number */}
-        <div className="flex-1">
-          <label className="block text-gray-600 my-2 font-semibold">LICENSE NUMBER</label>
+        <div className="form-group">
+          <label>Brand</label>
           <input
             type="text"
-            name="licenseNo"
-            placeholder="Enter License Number"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.licenseNo}
+            name="brand"
+            value={car.brand}
             onChange={handleChange}
+            placeholder="Enter car brand"
           />
         </div>
 
-        {/* License Expiry Date */}
-        <div className="flex-1">
-          <label className="block text-gray-600 my-2 font-semibold">LICENSE EXPIRY DATE</label>
-          <input
-            type="date"
-            name="licenseExpiryDate"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.licenseExpiryDate}
-            onChange={handleChange}
-          />
-        </div>
-
-        {/* Address */}
-        <div className="lg:col-span-2">
-          <label className="block text-gray-600 my-2 font-semibold">ADDRESS</label>
+        <div className="form-group">
+          <label>Model</label>
           <input
             type="text"
-            name="address"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.address}
+            name="model"
+            value={car.model}
             onChange={handleChange}
+            placeholder="Enter car model"
           />
         </div>
 
-        {/* City */}
-        <div>
-          <label className="block text-gray-600 my-2 font-semibold">CITY</label>
+        <div className="form-group">
+          <label>Year</label>
+          <input
+            type="number"
+            name="year"
+            value={car.year}
+            onChange={handleChange}
+            placeholder="Enter car year"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Location</label>
           <input
             type="text"
-            name="city"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.city}
+            name="location"
+            value={car.location}
             onChange={handleChange}
+            placeholder="Enter car location"
           />
         </div>
 
-        {/* District */}
-        <div>
-          <label className="block text-gray-600 my-2 font-semibold">DISTRICT</label>
+        <div className="form-group">
+          <label>Price per Day</label>
+          <input
+            type="number"
+            name="pricePerDay"
+            value={car.pricePerDay}
+            onChange={handleChange}
+            placeholder="Enter price per day"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Seats</label>
+          <input
+            type="number"
+            name="seats"
+            value={car.seats}
+            onChange={handleChange}
+            placeholder="Enter number of seats"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Fuel Type</label>
           <input
             type="text"
-            name="district"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.district}
+            name="fuelType"
+            value={car.fuelType}
             onChange={handleChange}
+            placeholder="Enter fuel type"
           />
         </div>
 
-        {/* State */}
-        <div>
-          <label className="block text-gray-600 my-2 font-semibold">STATE</label>
+        <div className="form-group">
+          <label>Transmission</label>
           <input
             type="text"
-            name="state"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.state}
+            name="transmission"
+            value={car.transmission}
             onChange={handleChange}
+            placeholder="Enter transmission type"
           />
         </div>
 
-        {/* Pincode */}
-        <div>
-          <label className="block text-gray-600 my-2 font-semibold">PINCODE</label>
+        <div className="form-group">
+          <label>Upload Car Image</label>
           <input
-            type="text"
-            name="pincode"
-            className="w-full px-4 py-2 border bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-medium"
-            required
-            value={formData.pincode}
-            onChange={handleChange}
+            type="file"
+            name="image"
+            onChange={handleImageChange}
           />
+          {previewImage && <img src={previewImage} alt="Car Preview" />}
         </div>
 
-        {/* Submit */}
-        <div className="lg:col-span-2 flex justify-center">
-          <button
-            type="submit"
-            className="w-full lg:w-2/5 py-2 rounded-3xl bg-medium text-white font-semibold mt-6 hover:bg-dark transition-all"
-          >
-            Sign Up
-          </button>
-        </div>
+        <button type="submit">Submit</button>
       </form>
-
-      {/* Redirect to Login */}
-      <div className="flex justify-center mt-4">
-        <p className="text-sm text-center">
-          Already have an account?{" "}
-          <Link to="/login" className="text-medium font-semibold hover:text-dark">
-            Login
-          </Link>
-        </p>
-      </div>
     </div>
-  </div>
   );
 };
 
-export default Signup;
+export default Host;

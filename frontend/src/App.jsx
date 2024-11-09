@@ -10,16 +10,14 @@ import LoginPage from "./components/Login/LoginPage";
 import Signup from "./components/SignUp/SignUp";
 import Location from "./components/Location/Location";
 import CarRental from "./components/Rental/CarRental";
-
-
+import AvailableCars from "./components/AvailableCars/AvailableCars";
 
 function App() {
   return (
     <div>
       <Navbar/>
-      {/* <Location /> */}
       <Routes>
-       <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/host" element={<Host />} /> 

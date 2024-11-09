@@ -1,5 +1,8 @@
 import {Router} from 'express'
+import { getAllCars } from '../controllers/carController.js';
 
-const router = Router();
+const carRouter = Router();
 
-router.route("/cars").get(getAllCars)
+carRouter.route("/available-cars").get(getAllCars)
+
+export default carRouter
