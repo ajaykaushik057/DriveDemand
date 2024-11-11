@@ -13,24 +13,27 @@ const uploadOnCloudinary = async (filePath) => {
       return null;
     }
 
+    // Upload file to Cloudinary
     const response = await cloudinary.uploader.upload(filePath, {
       resource_type: "auto",
     });
 
+    // Delete the local file after successful upload
     if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath)
+      fs.unlinkSync(filePath);
     }
 
-    return response
-
-
-
+    return response;
   } catch (error) {
-    if (fs.existsSync(localFilePath)) {
-        fs.unlinkSync(localFilePath);
+    // Fix: Changed `localFilePath` to `filePath`
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
+    
+    // Optional: Log the error for debugging
+    console.error("Cloudinary upload error:", error);
     return null;
   }
 };
 
-export {uploadOnCloudinary}
+export { uploadOnCloudinary };

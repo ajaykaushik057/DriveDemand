@@ -13,7 +13,7 @@ function Header() {
             Natus, commodi aliquid.\
           </p>
 
-          <button className="bg-medium px-5 py-3 text-white m-4 ">
+          <button className="bg-medium px-5 py-3 text-white m-4">
             Explore now
           </button>
         </div>

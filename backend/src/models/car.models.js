@@ -11,7 +11,7 @@ const carSchema = new Schema({
     required: true,
     trim: true
   },
-  model: {
+  regNo: {
     type: String,
     required: true,
     trim: true
@@ -47,8 +47,12 @@ const carSchema = new Schema({
   },
   img: {
     type: String,
+    trim: true,
+    default:"https://img.freepik.com/premium-vector/car-icon-car-icon-white-background-illustration_995545-84.jpg"
+  },
+  userID:{
+    type: String,
     required: true,
-    trim: true
   }
 });
 

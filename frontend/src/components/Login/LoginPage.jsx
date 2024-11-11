@@ -14,11 +14,14 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+  
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/users/login', { email, password });
+      const response = await axios.post('http://localhost:8787/api/v1/users/login', { email, password });
+  
       localStorage.setItem('jwtToken', response.data.token);
-      navigate('/')
+      localStorage.setItem('userData', JSON.stringify(response.data.user));
+  
+      navigate('/');
     } catch (err) {
       if (err.response && err.response.status === 400) {
         setError('Invalid email or password');

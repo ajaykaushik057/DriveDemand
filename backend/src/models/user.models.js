@@ -21,8 +21,8 @@ const userSchema = new Schema(
       required: true,
     },
     avatar: {
-      type: String, // URL of the avatar image
-      default: "",
+      type: String, 
+      default: "https://edutap.in/wp-content/uploads/2023/12/dummy-avatar-1.webp",
     },
     password: {
       type: String,

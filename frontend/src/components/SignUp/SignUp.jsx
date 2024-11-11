@@ -1,207 +1,256 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const Host = () => {
-  const [car, setCar] = useState({
-    name: '',
-    brand: '',
-    model: '',
-    year: '',
-    location: '',
-    pricePerDay: '',
-    seats: '',
-    fuelType: '',
-    transmission: '',
-    image: null,
+function SignUp() {
+  const [formData, setFormData] = useState({
+    fullname: '',
+    email: '',
+    gender: '',
+    password: '',
+    licenseNo: '',
+    licenseExpiryDate: '',
+    address: '',
+    city: '',
+    district: '',
+    pincode: '',
+    state: '',
   });
 
+  const [profilePic, setProfilePic] = useState(null); // For storing the profile picture
   const [error, setError] = useState('');
-  const [previewImage, setPreviewImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCar({ ...car, [name]: value });
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCar({ ...car, image: reader.result.split(',')[1] }); // Extract base64 string
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(file); // Read the image as base64
-    }
+  const handleFileChange = (e) => {
+    setProfilePic(e.target.files[0]); // Store the selected file
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
 
-    // Form validation
-    if (!car.name || !car.brand || !car.model || !car.year || !car.location || !car.pricePerDay || !car.seats || !car.fuelType || !car.transmission || !car.image) {
-      setError('All fields are required!');
-      return;
+    const formDataToSend = new FormData();
+    // Append form data
+    for (const key in formData) {
+      formDataToSend.append(key, formData[key]);
+    }
+    // Append profile picture if exists
+    if (profilePic) {
+      formDataToSend.append('avatar', profilePic);
     }
 
-    const carData = {
-      name: car.name,
-      brand: car.brand,
-      model: car.model,
-      year: car.year,
-      location: car.location,
-      pricePerDay: car.pricePerDay,
-      seats: car.seats,
-      fuelType: car.fuelType,
-      transmission: car.transmission,
-      image: car.image,
-    };
-
     try {
-      await axios.post('/api/cars', carData, {
+      const response = await axios.post('http://localhost:8787/api/v1/users/register', formDataToSend, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
       });
-
-      // Reset the form and show success message
-      setCar({
-        name: '',
-        brand: '',
-        model: '',
-        year: '',
-        location: '',
-        pricePerDay: '',
-        seats: '',
-        fuelType: '',
-        transmission: '',
-        image: null,
-      });
-      setPreviewImage(null);
-      alert('Car added successfully!');
-    } catch (error) {
-      setError(error.response?.data?.message || 'An error occurred while adding the car.');
+      console.log(response.data);
+      navigate('/login'); // Redirect to login page upon successful registration
+    } catch (err) {
+      setError(err.response ? err.response.data.message : 'Server error');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <h2>Host Your Car</h2>
-      {error && <div className="error">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Car Name</label>
-          <input
-            type="text"
-            name="name"
-            value={car.name}
-            onChange={handleChange}
-            placeholder="Enter car name"
-          />
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-700 p-12">
+      
+      <div className="bg-white p-8 shadow-md w-full max-w-3xl h-screen lg:h-auto overflow-y-auto lg:overflow-visible rounded-lg">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Create an Account</h2>
 
-        <div className="form-group">
-          <label>Brand</label>
-          <input
-            type="text"
-            name="brand"
-            value={car.brand}
-            onChange={handleChange}
-            placeholder="Enter car brand"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        <div className="form-group">
-          <label>Model</label>
-          <input
-            type="text"
-            name="model"
-            value={car.model}
-            onChange={handleChange}
-            placeholder="Enter car model"
-          />
-        </div>
+        
 
-        <div className="form-group">
-          <label>Year</label>
-          <input
-            type="number"
-            name="year"
-            value={car.year}
-            onChange={handleChange}
-            placeholder="Enter car year"
-          />
-        </div>
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">FULL NAME</label>
+            <input
+              type="text"
+              name="fullname"
+              value={formData.fullname}
+              onChange={handleChange}
+              placeholder="Enter full name"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        <div className="form-group">
-          <label>Location</label>
-          <input
-            type="text"
-            name="location"
-            value={car.location}
-            onChange={handleChange}
-            placeholder="Enter car location"
-          />
-        </div>
+            {/* Profile Picture Field */}
+            <div>
+            <label className="block text-gray-600 my-2 font-semibold">PROFILE PICTURE</label>
+            <input
+              type="file"
+              name="avatar"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-        <div className="form-group">
-          <label>Price per Day</label>
-          <input
-            type="number"
-            name="pricePerDay"
-            value={car.pricePerDay}
-            onChange={handleChange}
-            placeholder="Enter price per day"
-          />
-        </div>
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">EMAIL</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        <div className="form-group">
-          <label>Seats</label>
-          <input
-            type="number"
-            name="seats"
-            value={car.seats}
-            onChange={handleChange}
-            placeholder="Enter number of seats"
-          />
-        </div>
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">GENDER</label>
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
-        <div className="form-group">
-          <label>Fuel Type</label>
-          <input
-            type="text"
-            name="fuelType"
-            value={car.fuelType}
-            onChange={handleChange}
-            placeholder="Enter fuel type"
-          />
-        </div>
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">PASSWORD</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter password"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        <div className="form-group">
-          <label>Transmission</label>
-          <input
-            type="text"
-            name="transmission"
-            value={car.transmission}
-            onChange={handleChange}
-            placeholder="Enter transmission type"
-          />
-        </div>
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">LICENSE NUMBER</label>
+            <input
+              type="text"
+              name="licenseNo"
+              value={formData.licenseNo}
+              onChange={handleChange}
+              placeholder="Enter license number"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        <div className="form-group">
-          <label>Upload Car Image</label>
-          <input
-            type="file"
-            name="image"
-            onChange={handleImageChange}
-          />
-          {previewImage && <img src={previewImage} alt="Car Preview" />}
-        </div>
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">LICENSE EXPIRY DATE</label>
+            <input
+              type="date"
+              name="licenseExpiryDate"
+              value={formData.licenseExpiryDate}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        <button type="submit">Submit</button>
-      </form>
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">ADDRESS</label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Enter address"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">CITY</label>
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              placeholder="Enter city"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">DISTRICT</label>
+            <input
+              type="text"
+              name="district"
+              value={formData.district}
+              onChange={handleChange}
+              placeholder="Enter district"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">PINCODE</label>
+            <input
+              type="text"
+              name="pincode"
+              value={formData.pincode}
+              onChange={handleChange}
+              placeholder="Enter pincode"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-600 my-2 font-semibold">STATE</label>
+            <input
+              type="text"
+              name="state"
+              value={formData.state}
+              onChange={handleChange}
+              placeholder="Enter state"
+              className="w-full px-4 py-2 rounded-3xl border bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+
+          {/* Submit button */}
+          <div className="lg:col-span-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-3xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {loading ? 'Creating account...' : 'Sign Up'}
+            </button>
+          </div>
+        </form>
+
+        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+        <p className="text-center mt-4 text-gray-500">
+          Already have an account?{' '}
+          <a href="/login" className="text-blue-600 hover:underline">
+            Sign In
+          </a>
+        </p>
+      </div>
     </div>
   );
-};
+}
 
-export default Host;
+export default SignUp;

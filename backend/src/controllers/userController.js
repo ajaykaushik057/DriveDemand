@@ -22,16 +22,19 @@ const registerUser = async (req, res) => {
       licenseExpiryDate,
     } = req.body;
 
-    const avatar = req.file ? req.file.path : null;
+    let avatarUrl = '';
+
+    // If there's a profile picture, upload to Cloudinary
+    if (req.file) {
+      const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
+      avatarUrl = cloudinaryResponse.secure_url;
+    }
 
     // Check if the email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already in use" });
     }
-
-    // Hash the password
-    // const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       fullname,
@@ -46,7 +49,7 @@ const registerUser = async (req, res) => {
       address,
       licenseNo,
       licenseExpiryDate,
-      avatar,
+      avatar: avatarUrl,
     });
 
     await newUser.save();
@@ -70,6 +73,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -78,34 +82,50 @@ const loginUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).lean(); 
 
     if (!user) {
       return res.status(400).json({ message: "Invalid Email or Password" });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log(password);
-
-    console.log(isValidPassword);
 
     if (!isValidPassword) {
       return res.status(402).json("Invalid Email or Password");
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
+
+    // Remove password from user data before sending response
+    const { password: _, ...userWithoutPassword } = user;
 
     return res.status(200).json({
       message: "Login Successful",
       token,
+      user: userWithoutPassword, // Include user data without password
     });
-    
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
   }
 };
 
-export { registerUser, loginUser };
+
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).select('-password'); 
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export { registerUser, loginUser, getUserById };
